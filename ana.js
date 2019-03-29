@@ -112,15 +112,17 @@ async function parseLink(link){
 function createReadStream(repo){
     var fetchURL = 'https://github.com/'+repo+'/stargazers';
     var currenLink = fetchURL;
+    var pageNumber = 0;
     var readStream = Stream.Readable({
         objectMode: true,
         read: function (size) {
             (async () => {
                 await sleep(10 * 1000);
-
+                console.log('page', pageNumber)
                 try {
                     var results = await parseLink(currenLink);
                     if(results.hasMore){
+                        pageNumber++;
                         currenLink = results.nextLink;
                     }else{
                         return this.emit('end');
