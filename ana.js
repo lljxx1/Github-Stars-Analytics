@@ -123,6 +123,8 @@ function createReadStream(repo){
                 } catch (e) {
                     console.log(e);
                 }
+                
+                return this.read();
             })();
         }
     });
