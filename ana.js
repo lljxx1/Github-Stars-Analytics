@@ -279,7 +279,7 @@ async function startFetchWorker(){
 
 (async () => {
     if(!fs.existsSync(DataFile)) await sequelize.sync({ force: true });
-    startFetchWorker();
+    // startFetchWorker();
     startFetchNewWorker();
 })();
 
