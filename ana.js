@@ -93,7 +93,7 @@ async function parseLink(link){
             nextLink = nextLink.attr('href');
         }
 
-        console.log('totalCount', totalCount, nextLink.text())
+        console.log('totalCount', totalCount)
         console.log(data.length, users);
     }catch(e){
         console.log(e);
