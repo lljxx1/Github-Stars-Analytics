@@ -20,6 +20,8 @@ sequelize
   });
 
 
+
+
   //  MODELS
 var User = sequelize.define('User', {
     userId: {
@@ -48,6 +50,10 @@ var User = sequelize.define('User', {
   
   
 
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 async function parseLink(link){
     var users = [];
@@ -123,7 +129,8 @@ function createReadStream(repo){
                 } catch (e) {
                     console.log(e);
                 }
-                
+
+                await sleep(10 * 1000);
                 return this.read();
             })();
         }
@@ -238,7 +245,7 @@ async function startFetchNewWorker(){
                     line.fetched = 0;
                     await User.create(line);
                 }catch(e){
-                    console.log(e);
+                    // console.log(e);
                 }
                 next();
           })();
