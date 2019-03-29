@@ -19,7 +19,7 @@ sequelize
     console.log('Unable to connect to the database:', err);
   });
 
-  
+
   //  MODELS
 var User = sequelize.define('User', {
     userId: {
@@ -114,6 +114,8 @@ function createReadStream(repo){
                     var results = await parseLink(currenLink);
                     if(results.hasMore){
                         currenLink = results.nextLink;
+                    }else{
+                        return this.emit('end');
                     }
                     results.users.forEach((user) => {
                         this.push(user);
@@ -236,7 +238,6 @@ async function startFetchNewWorker(){
                 }catch(e){
                     console.log(e);
                 }
-                console.log(line);
                 next();
           })();
         }
@@ -250,7 +251,6 @@ async function startFetchWorker(){
         write: function (userItem, _, next) {
           (async () => {    
                 try{
-                    console.log(userItem, userItem.update);
                     var userDetailMeta = await parseProfile(userItem.user);
                     if(Object.keys(userDetailMeta).length){
                         userDetailMeta.fetched = 1;
