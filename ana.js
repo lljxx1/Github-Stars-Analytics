@@ -116,6 +116,8 @@ function createReadStream(repo){
         objectMode: true,
         read: function (size) {
             (async () => {
+                await sleep(10 * 1000);
+
                 try {
                     var results = await parseLink(currenLink);
                     if(results.hasMore){
@@ -130,7 +132,7 @@ function createReadStream(repo){
                     console.log(e);
                 }
 
-                await sleep(10 * 1000);
+               
                 return this.read();
             })();
         }
