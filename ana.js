@@ -263,6 +263,7 @@ async function startFetchWorker(){
         objectMode: true,
         write: function (userItem, _, next) {
           (async () => {    
+		await sleep(15 * 1000);
                 try{
                     var userDetailMeta = await parseProfile(userItem.user);
                     if(Object.keys(userDetailMeta).length){
@@ -283,7 +284,7 @@ async function startFetchWorker(){
 
 (async () => {
     if(!fs.existsSync(DataFile)) await sequelize.sync({ force: true });
-    // startFetchWorker();
+    startFetchWorker();
     startFetchNewWorker();
 })();
 
