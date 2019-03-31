@@ -12,17 +12,17 @@ var sequelize = new Sequelize('mainDB', null, null, {
 });
 
 sequelize
-  .authenticate()
-  .then(function(err) {
-    console.log('Connection has been established successfully.');
-  }, function (err) {
-    console.log('Unable to connect to the database:', err);
-  });
+    .authenticate()
+    .then(function (err) {
+        console.log('Connection has been established successfully.');
+    }, function (err) {
+        console.log('Unable to connect to the database:', err);
+    });
 
 
 
 
-  //  MODELS
+//  MODELS
 var User = sequelize.define('User', {
     userId: {
         type: Sequelize.INTEGER,
@@ -47,19 +47,19 @@ var User = sequelize.define('User', {
     has_organization: Sequelize.INTEGER,
     fetched: Sequelize.INTEGER,
 });
-  
-  
+
+
 
 
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function parseLink(link){
+async function parseLink(link) {
     var users = [];
     var hasMore = false;
     var nextLink = null;
-    try{
+    try {
         console.log('fetch', link)
         var results = await request.get(link);
         var $ = cheerio.load(results);
@@ -76,26 +76,26 @@ async function parseLink(link){
                 user: nameBlock.find('a').text()
             };
 
-            if(element.find('.octicon-location').length){
+            if (element.find('.octicon-location').length) {
                 userMeta.location = element.find('.octicon-location').next().text();
                 userMeta.has_location = 1;
             }
 
-            if(element.find('.octicon-organization').length){
+            if (element.find('.octicon-organization').length) {
                 userMeta.organization = element.find('.octicon-organization').next().text();
                 userMeta.has_organization = 1;
             }
             users.push(userMeta);
         }
 
-        if(nextLink && nextLink.attr('disabled') != "disabled"){
+        if (nextLink && nextLink.attr('disabled') != "disabled") {
             hasMore = true;
             nextLink = nextLink.attr('href');
         }
 
         console.log('totalCount', totalCount)
         console.log(data.length, users);
-    }catch(e){
+    } catch (e) {
         console.log(e);
     }
 
@@ -109,8 +109,8 @@ async function parseLink(link){
 }
 
 
-function createReadStream(repo){
-    var fetchURL = 'https://github.com/'+repo+'/stargazers';
+function createReadStream(repo) {
+    var fetchURL = 'https://github.com/' + repo + '/stargazers';
     var currenLink = fetchURL;
     var pageNumber = 0;
     var readStream = Stream.Readable({
@@ -121,10 +121,10 @@ function createReadStream(repo){
                 console.log('page', pageNumber)
                 try {
                     var results = await parseLink(currenLink);
-                    if(results.hasMore){
+                    if (results.hasMore) {
                         pageNumber++;
                         currenLink = results.nextLink;
-                    }else{
+                    } else {
                         return this.emit('end');
                     }
                     results.users.forEach((user) => {
@@ -134,19 +134,19 @@ function createReadStream(repo){
                     console.log(e);
                 }
 
-               
+
                 return this.read();
             })();
         }
     });
- 
+
     return readStream;
 }
 
 
 
 
-function getUpdateStream(){
+function getUpdateStream() {
     var readStream = Stream.Readable({
         objectMode: true,
         read: function (size) {
@@ -169,123 +169,127 @@ function getUpdateStream(){
             })();
         }
     });
- 
+
     return readStream;
 }
 
 
 
-async function parseProfile(user){
-    var link = 'https://github.com/'+user;
+async function parseProfile(user) {
+    var link = 'https://github.com/' + user;
     var userMeta = {};
-    try{
+
+    console.log('parseProfile', user);
+    try {
         var results = await request.get(link);
         var $ = cheerio.load(results);
         var element = $('body');
 
-        if(element.find('.octicon-location').length){
+        if (element.find('.octicon-location').length) {
             userMeta.location = element.find('.octicon-location').next().text();
             userMeta.has_location = 1;
         }
 
-        if(element.find('.octicon-organization').length){
+        if (element.find('.octicon-organization').length) {
             userMeta.organization = element.find('.octicon-organization').next().text();
             userMeta.has_organization = 1;
         }
 
-        if(element.find('.octicon-link').length){
+        if (element.find('.octicon-link').length) {
             userMeta.website = element.find('.octicon-link').next().text();
         }
 
-        if(element.find('.user-profile-bio').length){
+        if (element.find('.user-profile-bio').length) {
             userMeta.desc = element.find('.user-profile-bio').text();
         }
 
 
-        if(element.find('.user-status-message-wrapper').length){
+        if (element.find('.user-status-message-wrapper').length) {
             userMeta.status = element.find('.user-status-message-wrapper').text();
         }
 
-        var links =  element.find('.UnderlineNav-item');
-        
+        var links = element.find('.UnderlineNav-item');
+
         for (let index = 0; index < links.length; index++) {
             const link = links.eq(index);
             var linkText = link.text();
             var count = link.find('.Counter').text();
             var countNumber = parseInt(count.trim());
-            if(isNaN(countNumber)) countNumber = 0;
+            if (isNaN(countNumber)) countNumber = 0;
 
-            if(linkText.indexOf('Repositories') > -1){
+            if (linkText.indexOf('Repositories') > -1) {
                 userMeta.repos = countNumber;
             }
 
-            if(linkText.indexOf('Stars') > -1){
+            if (linkText.indexOf('Stars') > -1) {
                 userMeta.stars = countNumber;
             }
 
-            if(linkText.indexOf('Followers') > -1){
+            if (linkText.indexOf('Followers') > -1) {
                 userMeta.followers = countNumber;
             }
         }
 
-        if(userMeta.status){
+        if (userMeta.status) {
             userMeta.status = userMeta.status.trim();
         }
-    }catch(e){
+    } catch (e) {
         console.log(e);
     }
     return userMeta;
 }
 
 
-async function startFetchNewWorker(){
+async function startFetchNewWorker() {
     var repo = '996icu/996.ICU';
     var reader = createReadStream(repo);
     reader.pipe(Stream.Writable({
         objectMode: true,
         write: function (line, _, next) {
-          (async () => {
-                try{
+            (async () => {
+                try {
                     line.fetched = 0;
                     await User.create(line);
-                }catch(e){
+                } catch (e) {
                     // console.log(e);
                 }
                 next();
-          })();
+            })();
         }
     }));
 }
 
-async function startFetchWorker(){
+async function startFetchWorker() {
     var readStream = getUpdateStream();
     readStream.pipe(Stream.Writable({
         objectMode: true,
         write: function (userItem, _, next) {
-          (async () => {    
-		await sleep(15 * 1000);
-                try{
+            (async () => {
+                await sleep(15 * 1000);
+                try {
                     var userDetailMeta = await parseProfile(userItem.user);
-                    if(Object.keys(userDetailMeta).length){
-                        userDetailMeta.fetched = 1;
+                    if (Object.keys(userDetailMeta).length) {
                         Object.assign(userItem, userDetailMeta);
                         // update
-                        await userItem.update();
                     }
-                }catch(e){
+
+                    userDetailMeta.fetched = 1;
+                    await userItem.update();
+                } catch (e) {
                     console.log(e);
                 }
+                console.log('done');
                 next();
-          })();
+            })();
         }
     }));
 }
 
 
 (async () => {
-    if(!fs.existsSync(DataFile)) await sequelize.sync({ force: true });
+    if (!fs.existsSync(DataFile)) await sequelize.sync({
+        force: true
+    });
     startFetchWorker();
-    startFetchNewWorker();
+    // startFetchNewWorker();
 })();
-
-
