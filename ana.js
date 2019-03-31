@@ -265,7 +265,7 @@ async function startFetchWorker() {
         objectMode: true,
         write: function (userItem, _, next) {
             (async () => {
-                await sleep(15 * 1000);
+                await sleep(8 * 1000);
                 try {
                     var userDetailMeta = await parseProfile(userItem.user);
                     if (Object.keys(userDetailMeta).length) {
