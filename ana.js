@@ -267,14 +267,14 @@ async function startFetchWorker() {
             (async () => {
                 await sleep(8 * 1000);
                 try {
+                    var defaA = {};
                     var userDetailMeta = await parseProfile(userItem.user);
                     if (Object.keys(userDetailMeta).length) {
-                        Object.assign(userItem, userDetailMeta);
+                        Object.assign(defaA, userDetailMeta);
                         // update
                     }
-
-                    userItem.fetched = 1;
-                    await userItem.update();
+                    defaA.fetched = 1;
+                    await userItem.update(defaA);
                 } catch (e) {
                     console.log(e);
                 }
