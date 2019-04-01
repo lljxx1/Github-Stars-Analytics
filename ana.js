@@ -273,7 +273,7 @@ async function startFetchWorker() {
                         // update
                     }
 
-                    userDetailMeta.fetched = 1;
+                    userItem.fetched = 1;
                     await userItem.update();
                 } catch (e) {
                     console.log(e);
