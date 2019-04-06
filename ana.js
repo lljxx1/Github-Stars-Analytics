@@ -291,5 +291,5 @@ async function startFetchWorker() {
         force: true
     });
     startFetchWorker();
-    // startFetchNewWorker();
+    startFetchNewWorker();
 })();
